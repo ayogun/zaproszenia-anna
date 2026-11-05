@@ -1,0 +1,35 @@
+module.exports = {
+  coverEyebrow: 'Dla kogoś wyjątkowego',
+  coverTitle: 'Dla Ciebie',
+  coverSubtitle: 'Mała historia o wielkim pytaniu',
+
+  messages: [
+    { text: 'Są w życiu pytania, które zadaje się tylko raz…' },
+    { text: 'Niektóre osoby sprawiają, że najważniejsze chwile stają się jeszcze piękniejsze.' },
+    { text: 'I właśnie dlatego chciałabym zapytać o coś wyjątkowego…' },
+    { text: 'Ale zanim to zrobię, mam do Was kilka pytań…' },
+    { text: 'Czy wiesz, jak ważną osobą jesteś w moim życiu?' },
+    { text: 'Czy pamiętasz nasze najpiękniejsze wspólne chwile?' },
+    { text: 'Czy wyobrażasz sobie, że mogłoby Cię zabraknąć w jednym z najważniejszych dni mojego życia?' },
+    { text: 'Czy wiesz, że nie wyobrażam sobie tej chwili bez Ciebie?' },
+    { text: 'Czy jesteś gotowa na kolejne wspólne szaleństwa?' },
+    { text: 'Czy obiecujesz nie płakać bardziej niż ja?' },
+    { text: 'Czy jesteś gotowa na emocje, wzruszenia i odrobinę chaosu?' },
+    { text: 'Czy mogę liczyć na Twoją obecność, nawet jeśli będziesz musiała poprawiać mi makijaż?' },
+    { text: 'Mam nadzieję, że odpowiedź brzmi TAK…' },
+    { text: 'Bo jest jedna osoba, którą bardzo chciałabym mieć przy sobie…' },
+    { text: 'W dniu, który będzie dla mnie wyjątkowy.' },
+    { text: 'W dniu, który zapamiętam na całe życie…' },
+    {
+      text: 'Czy zostaniesz moją druhną?',
+      detail: 'Nie wyobrażam sobie tego dnia bez Ciebie.',
+      final: true,
+    },
+  ],
+
+  musicFile: 'music.mp3',
+  ogTitle: 'Coś wyjątkowego dla Ciebie',
+  ogDescription: 'Mała historia o wielkim pytaniu.',
+  ogImage: '',
+  siteUrl: '',
+};

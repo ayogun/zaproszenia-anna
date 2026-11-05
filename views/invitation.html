@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6eae7">
+  <title>{{ogTitle}}</title>
+  <meta name="description" content="{{ogDescription}}">
+  <meta name="robots" content="noindex, nofollow">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pl_PL">
+  <meta property="og:title" content="{{ogTitle}}">
+  <meta property="og:description" content="{{ogDescription}}">
+{{ogUrlTag}}
+{{ogImageTag}}
+  <script>document.documentElement.classList.add('js')</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Allura&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-music-file="{{musicFile}}" data-messages="{{messagesJson}}">
+  <svg width="0" height="0" class="svg-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="corner" viewBox="0 0 28 28">
+        <path d="M1.5 27V6.5Q1.5 1.5 6.5 1.5H27M6.5 27V11.5Q6.5 6.5 11.5 6.5H27" fill="none" stroke="currentColor" stroke-width="1"/>
+        <circle cx="1.5" cy="1.5" r="1.7" fill="currentColor"/>
+      </symbol>
+      <symbol id="divider" viewBox="0 0 160 12">
+        <path d="M0 6H66M94 6H160" fill="none" stroke="currentColor" stroke-width="1"/>
+        <path d="M80 1L86 6L80 11L74 6Z" fill="currentColor"/>
+        <circle cx="69" cy="6" r="1.3" fill="currentColor"/>
+        <circle cx="91" cy="6" r="1.3" fill="currentColor"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <main>
+    <section class="scene" id="scene" aria-label="Zaproszenie dla Ciebie">
+      <div class="stage" id="stage">
+        <img class="ambient ambient-left" src="rose-leaves.png" alt="" aria-hidden="true">
+        <img class="ambient ambient-right" src="rose-leaves.png" alt="" aria-hidden="true">
+        <div class="sheet" id="sheet">
+          <div class="panel" id="p1">
+            <div class="face front cover">
+              <img class="flower flower-top" src="rose.png" alt="" aria-hidden="true">
+              <img class="flower flower-bottom" src="rose.png" alt="" aria-hidden="true">
+              <img class="leaves leaves-top" src="rose-leaves.png" alt="" aria-hidden="true">
+              <svg class="corner tl" aria-hidden="true"><use href="#corner"/></svg>
+              <svg class="corner tr" aria-hidden="true"><use href="#corner"/></svg>
+              <svg class="corner bl" aria-hidden="true"><use href="#corner"/></svg>
+              <svg class="corner br" aria-hidden="true"><use href="#corner"/></svg>
+              <p class="eyebrow">{{coverEyebrow}}</p>
+              <h1 class="names foil">{{coverTitle}}</h1>
+              <svg class="divider" aria-hidden="true"><use href="#divider"/></svg>
+              <p class="hero-date">{{coverSubtitle}}</p>
+              <p class="hint" id="hint">Dotknij lub przesuń, aby otworzyć <span aria-hidden="true">↓</span></p>
+            </div>
+
+            <div class="panel" id="p2" aria-hidden="true">
+              <div class="face front message" id="message-face">
+                <img class="flower flower-top" src="rose.png" alt="" aria-hidden="true">
+                <img class="flower flower-bottom" src="rose.png" alt="" aria-hidden="true">
+                <img class="leaves leaves-top" src="rose-leaves.png" alt="" aria-hidden="true">
+                <p class="message-eyebrow">Kilka słów dla Ciebie</p>
+                <h2 class="message-text" id="message-text"></h2>
+                <p class="message-detail" id="message-detail" hidden></p>
+                <span class="message-heart" id="message-heart" aria-hidden="true" hidden>❤</span>
+              </div>
+              <div class="face back"><span class="monogram" aria-hidden="true">♥</span></div>
+            </div>
+          </div>
+          <button class="card-action" id="card-action" type="button" aria-label="Otwórz zaproszenie"></button>
+        </div>
+
+        <nav class="story-controls" aria-label="Nawigacja po zaproszeniu">
+          <button class="story-button previous" id="previous" type="button" aria-label="Poprzednia wiadomość" disabled>
+            <span aria-hidden="true">←</span><span class="previous-label">Wstecz</span>
+          </button>
+          <span class="counter" id="counter" aria-label="Postęp zaproszenia"></span>
+          <button class="story-button next" id="next" type="button">
+            <span id="next-label">Otwórz</span><span aria-hidden="true">→</span>
+          </button>
+        </nav>
+        <p class="swipe-tip">Przesuwaj kartę lub użyj strzałek</p>
+      </div>
+    </section>
+    <p class="sr-only" id="announcement" role="status" aria-live="polite" aria-atomic="true"></p>
+    <noscript>
+      <section class="no-js">
+        <p class="eyebrow">{{coverEyebrow}}</p>
+        <h1 class="names">{{coverTitle}}</h1>
+        <ol>{{storyFallbackHtml}}</ol>
+      </section>
+    </noscript>
+  </main>
+
+  <button id="music" class="music" type="button" aria-pressed="false" hidden>
+    <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span id="music-label">Włącz muzykę</span>
+  </button>
+
+  <script src="invitation.js"></script>
+</body>
+</html>
