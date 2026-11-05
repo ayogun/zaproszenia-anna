@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const config = { ...require('./config') };
 
 const esc = (value) =>
@@ -10,9 +11,13 @@ const esc = (value) =>
 const siteUrl = (config.siteUrl || '').replace(/\/+$/, '');
 const absolute = (url) => (/^https?:\/\//.test(url) ? url : siteUrl ? `${siteUrl}/${url.replace(/^\/+/, '')}` : '');
 const ogImage = config.ogImage ? absolute(config.ogImage) : '';
+const assetVersion = (file) => crypto.createHash('sha256')
+  .update(fs.readFileSync(path.join(__dirname, 'public', file))).digest('hex').slice(0, 12);
 
 const vars = {
   ...config,
+  styleVersion: assetVersion('style.css'),
+  scriptVersion: assetVersion('invitation.js'),
   messagesJson: JSON.stringify(config.messages),
   storyFallbackHtml: config.messages.map(({ text, detail }) =>
     `<li><p>${esc(text)}</p>${detail ? `<p><em>${esc(detail)}</em> ❤</p>` : ''}</li>`
