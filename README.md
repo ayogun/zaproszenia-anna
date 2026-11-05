@@ -10,7 +10,7 @@ With Node.js 18 or newer:
 npm run preview
 ```
 
-Open `http://localhost:8080`. The card opens and advances on click, swipe, scroll, or with the arrow keys. The previous button goes back; the last screen can be replayed from the beginning. All messages are also available without JavaScript.
+Open `http://localhost:8080`. Each click, sideways swipe, or left/right arrow key unfolds another connected panel. Earlier messages stay open and can be revisited by scrolling or using the previous button; the last screen can be read again from the beginning. All messages are also available without JavaScript.
 
 ## Edit and build
 

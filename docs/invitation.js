@@ -47,111 +47,130 @@
   }
 
   const messages = JSON.parse(body.dataset.messages);
-  const stage = $('stage');
   const sheet = $('sheet');
-  const p1 = $('p1');
-  const p2 = $('p2');
+  const cover = $('p1');
+  const messageTemplate = $('message-template');
   const cardAction = $('card-action');
   const previous = $('previous');
   const next = $('next');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const ease = (value) => (value < 0.5 ? 2 * value * value : 1 - Math.pow(-2 * value + 2, 2) / 2);
-  const radians = (degrees) => (degrees * Math.PI) / 180;
+  const panels = [];
   let current = -1;
-  let progress = 0;
   let animating = false;
   let pointerStart = null;
   let suppressClick = false;
-  let wheelLocked = false;
-  let wheelTimer = 0;
-  let wheelDistance = 0;
-
-  function updateScene() {
-    const angle = -180 * (1 - progress);
-    const height = p1.offsetHeight;
-    const bottom = Math.max(height, height + height * Math.cos(radians(angle)));
-    const availableHeight = Math.max(bottom, stage.offsetHeight - 100);
-    p2.style.setProperty('--a2', `${angle}deg`);
-    p2.style.setProperty('--shade', (1 - progress) * 0.35);
-    sheet.style.transform = `translateY(${Math.max(16, (availableHeight - bottom) / 2)}px)`;
-  }
+  let scrollingToPanel = false;
+  let scrollTimer = 0;
+  let scrollFrame = 0;
 
   function updateControls() {
-    const open = current >= 0;
-    const last = current === messages.length - 1;
-    previous.disabled = !open || animating;
-    next.disabled = animating;
-    sheet.classList.toggle('is-open', open);
-    p2.setAttribute('aria-hidden', String(!open));
-    cardAction.setAttribute('aria-disabled', String(animating));
-    cardAction.setAttribute('aria-label', !open ? 'Otwórz zaproszenie' : last ? 'Wróć na początek' : 'Pokaż następną wiadomość');
-    $('next-label').textContent = !open ? 'Otwórz' : last ? 'Od początku' : 'Dalej';
+    const last = current >= 0 && current === messages.length - 1;
+    previous.setAttribute('aria-disabled', String(current < 0 || animating));
+    next.setAttribute('aria-disabled', String(animating || !messages.length));
+    cardAction.setAttribute('aria-disabled', String(animating || !messages.length));
+    sheet.classList.toggle('is-open', panels.length > 0);
+    cardAction.setAttribute('aria-label', !panels.length ? 'Otwórz zaproszenie' : last ? 'Wróć na początek' : 'Pokaż następną wiadomość');
+    $('next-label').textContent = !panels.length ? 'Otwórz' : last ? 'Od początku' : 'Dalej';
     $('counter').textContent = `${String(current + 1).padStart(2, '0')} / ${String(messages.length).padStart(2, '0')}`;
   }
 
-  function showMessage(index) {
-    const message = messages[index];
-    $('message-text').textContent = message.text;
-    $('message-detail').textContent = message.detail || '';
-    $('message-detail').hidden = !message.detail;
-    $('message-heart').hidden = !message.final;
-    $('message-face').classList.toggle('final', Boolean(message.final));
-    $('announcement').textContent = [message.text, message.detail].filter(Boolean).join(' ');
+  function announceCurrent() {
+    const message = messages[current];
+    $('announcement').textContent = message
+      ? [message.text, message.detail].filter(Boolean).join(' ')
+      : 'Początek zaproszenia.';
   }
 
-  function animateFold(target, duration, done) {
-    if (reduceMotion) {
-      progress = target;
-      updateScene();
-      done();
-      return;
+  function syncCurrentToScroll() {
+    if (animating || scrollingToPanel || !panels.length) return;
+    const center = (window.innerHeight - 110) / 2;
+    let closest = -1;
+    let distance = Infinity;
+    [cover, ...panels].forEach((panel, index) => {
+      const bounds = panel.getBoundingClientRect();
+      const panelDistance = Math.abs(bounds.top + bounds.height / 2 - center);
+      if (panelDistance < distance) {
+        closest = index - 1;
+        distance = panelDistance;
+      }
+    });
+    if (closest !== current) {
+      current = closest;
+      updateControls();
     }
-    const startProgress = progress;
-    const startTime = performance.now();
-    const step = (now) => {
-      const time = Math.min(1, (now - startTime) / duration);
-      progress = startProgress + (target - startProgress) * ease(time);
-      updateScene();
-      if (time < 1) requestAnimationFrame(step);
-      else done();
-    };
-    requestAnimationFrame(step);
+  }
+
+  function scrollToCurrent() {
+    const panel = current < 0 ? cover : panels[current];
+    const center = (window.innerHeight - 110) / 2;
+    const top = Math.max(0, sheet.getBoundingClientRect().top + window.scrollY + panel.offsetTop + panel.offsetHeight / 2 - center);
+    const smooth = !reduceMotion && Math.abs(window.scrollY - top) <= window.innerHeight * 2;
+    scrollingToPanel = true;
+    window.clearTimeout(scrollTimer);
+    window.scrollTo({ top, behavior: smooth ? 'smooth' : 'auto' });
+    scrollTimer = window.setTimeout(() => {
+      scrollingToPanel = false;
+      syncCurrentToScroll();
+    }, smooth ? 850 : 0);
   }
 
   function goTo(index) {
-    if (animating || index < -1 || index >= messages.length || index === current) return;
+    if (animating || index < -1 || index >= panels.length || index === current) return;
+    current = index;
+    updateControls();
+    scrollToCurrent();
+    announceCurrent();
+  }
+
+  function unfoldNext() {
+    const index = panels.length;
+    const message = messages[index];
+    if (!message) return;
+    const panel = messageTemplate.content.firstElementChild.cloneNode(true);
+    const face = panel.querySelector('.message');
+    face.querySelector('.message-text').textContent = message.text;
+    face.querySelector('.message-detail').textContent = message.detail || '';
+    face.querySelector('.message-detail').hidden = !message.detail;
+    face.querySelector('.message-heart').hidden = !message.final;
+    face.classList.toggle('final', Boolean(message.final));
+    panel.setAttribute('aria-hidden', 'true');
+    if (!reduceMotion) panel.classList.add(index % 2 ? 'unfold-backward' : 'unfold-forward');
+    sheet.insertBefore(panel, cardAction);
+    panels.push(panel);
+    current = index;
     animating = true;
     updateControls();
+    scrollToCurrent();
+
+    let finished = false;
+    let timer = 0;
     const finish = () => {
+      if (finished) return;
+      finished = true;
+      window.clearTimeout(timer);
+      panel.classList.remove('unfold-forward', 'unfold-backward');
+      panel.removeAttribute('aria-hidden');
       animating = false;
       updateControls();
+      announceCurrent();
     };
-
-    if (current === -1) {
-      current = index;
-      showMessage(current);
-      updateControls();
-      animateFold(1, 650, finish);
-    } else if (index === -1) {
-      animateFold(0, 450, () => {
-        current = -1;
-        $('announcement').textContent = 'Początek zaproszenia.';
-        finish();
-      });
+    if (reduceMotion) {
+      finish();
     } else {
-      animateFold(0, 350, () => {
-        current = index;
-        showMessage(current);
-        updateControls();
-        animateFold(1, 500, finish);
-      });
+      panel.addEventListener('animationend', finish, { once: true });
+      timer = window.setTimeout(finish, 1000);
     }
   }
 
-  const advance = () => goTo(current === messages.length - 1 ? -1 : current + 1);
+  const advance = () => {
+    if (animating || !messages.length) return;
+    if (current === messages.length - 1) goTo(-1);
+    else if (current + 1 < panels.length) goTo(current + 1);
+    else unfoldNext();
+  };
   const retreat = () => goTo(current - 1);
 
-  cardAction.addEventListener('click', () => {
+  sheet.addEventListener('click', () => {
     if (suppressClick) {
       suppressClick = false;
       return;
@@ -161,7 +180,7 @@
   previous.addEventListener('click', retreat);
   next.addEventListener('click', advance);
 
-  cardAction.addEventListener('pointerdown', (event) => {
+  sheet.addEventListener('pointerdown', (event) => {
     if (event.button !== 0) return;
     pointerStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
   });
@@ -170,37 +189,31 @@
     const horizontal = event.clientX - pointerStart.x;
     const vertical = event.clientY - pointerStart.y;
     pointerStart = null;
-    const distance = Math.abs(horizontal) > Math.abs(vertical) ? horizontal : vertical;
-    if (Math.abs(distance) < 45) return;
+    if (Math.abs(horizontal) < 45 || Math.abs(horizontal) <= Math.abs(vertical)) return;
     suppressClick = true;
     window.setTimeout(() => { suppressClick = false; }, 500);
-    if (distance < 0) advance();
+    if (horizontal < 0) advance();
     else retreat();
   });
   window.addEventListener('pointercancel', () => { pointerStart = null; });
 
-  stage.addEventListener('wheel', (event) => {
-    event.preventDefault();
-    window.clearTimeout(wheelTimer);
-    wheelTimer = window.setTimeout(() => { wheelLocked = false; wheelDistance = 0; }, 180);
-    if (wheelLocked || animating) return;
-    wheelDistance += Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
-    if (Math.abs(wheelDistance) < 25) return;
-    wheelLocked = true;
-    if (wheelDistance > 0) advance();
-    else retreat();
-  }, { passive: false });
-
   window.addEventListener('keydown', (event) => {
-    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key === 'ArrowRight') {
       event.preventDefault();
       advance();
-    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+    } else if (event.key === 'ArrowLeft') {
       event.preventDefault();
       retreat();
     }
   });
-  window.addEventListener('resize', updateScene);
+  window.addEventListener('scroll', () => {
+    if (scrollFrame) return;
+    scrollFrame = window.requestAnimationFrame(() => {
+      scrollFrame = 0;
+      syncCurrentToScroll();
+    });
+  }, { passive: true });
+  window.addEventListener('resize', syncCurrentToScroll);
   updateControls();
-  updateScene();
 })();

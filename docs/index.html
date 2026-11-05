@@ -54,27 +54,29 @@
               <h1 class="names foil">Dla Ciebie</h1>
               <svg class="divider" aria-hidden="true"><use href="#divider"/></svg>
               <p class="hero-date">Mała historia o wielkim pytaniu</p>
-              <p class="hint" id="hint">Dotknij lub przesuń, aby otworzyć <span aria-hidden="true">↓</span></p>
-            </div>
-
-            <div class="panel" id="p2" aria-hidden="true">
-              <div class="face front message" id="message-face">
-                <img class="flower flower-top" src="rose.png" alt="" aria-hidden="true">
-                <img class="flower flower-bottom" src="rose.png" alt="" aria-hidden="true">
-                <img class="leaves leaves-top" src="rose-leaves.png" alt="" aria-hidden="true">
-                <p class="message-eyebrow">Kilka słów dla Ciebie</p>
-                <h2 class="message-text" id="message-text"></h2>
-                <p class="message-detail" id="message-detail" hidden></p>
-                <span class="message-heart" id="message-heart" aria-hidden="true" hidden>❤</span>
-              </div>
-              <div class="face back"><span class="monogram" aria-hidden="true">♥</span></div>
+              <p class="hint" id="hint">Dotknij lub przesuń w lewo, aby otworzyć <span aria-hidden="true">←</span></p>
             </div>
           </div>
           <button class="card-action" id="card-action" type="button" aria-label="Otwórz zaproszenie"></button>
         </div>
 
+        <template id="message-template">
+          <div class="panel message-panel">
+            <div class="face front message">
+              <img class="flower flower-top" src="rose.png" alt="" aria-hidden="true">
+              <img class="flower flower-bottom" src="rose.png" alt="" aria-hidden="true">
+              <img class="leaves leaves-top" src="rose-leaves.png" alt="" aria-hidden="true">
+              <p class="message-eyebrow">Kilka słów dla Ciebie</p>
+              <h2 class="message-text"></h2>
+              <p class="message-detail" hidden></p>
+              <span class="message-heart" aria-hidden="true" hidden>❤</span>
+            </div>
+            <div class="face back" aria-hidden="true"><span class="monogram">♥</span></div>
+          </div>
+        </template>
+
         <nav class="story-controls" aria-label="Nawigacja po zaproszeniu">
-          <button class="story-button previous" id="previous" type="button" aria-label="Poprzednia wiadomość" disabled>
+          <button class="story-button previous" id="previous" type="button" aria-label="Poprzednia wiadomość" aria-disabled="true">
             <span aria-hidden="true">←</span><span class="previous-label">Wstecz</span>
           </button>
           <span class="counter" id="counter" aria-label="Postęp zaproszenia"></span>
@@ -82,7 +84,7 @@
             <span id="next-label">Otwórz</span><span aria-hidden="true">→</span>
           </button>
         </nav>
-        <p class="swipe-tip">Przesuwaj kartę lub użyj strzałek</p>
+        <p class="swipe-tip">Przesuń w lewo lub użyj strzałek</p>
       </div>
     </section>
     <p class="sr-only" id="announcement" role="status" aria-live="polite" aria-atomic="true"></p>
